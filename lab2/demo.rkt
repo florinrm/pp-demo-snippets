@@ -87,6 +87,17 @@
 ; in recursiva pe coada, rezultatul sa fie inversat
 
 
+; functie recursiva pe coada, care nu are acumulator
+(define (is-member l e)
+  (cond
+    ((null? l) #f)
+    ((equal? e (car l)) #t)
+    (else (is-member (cdr l) e))))
+
+(is-member (list 1 2 3 4) 3)
+(is-member (list 1 2 3 4) 5)
+
+
 ; recursivitate arborescenta - subtip al recursivitatii pe stiva
 ; pentru ca se pastreaza apelurile pe stiva pentru a construi rezultatul
 ; incepand cu frunzele arborelui de recurenta pana la radacina
