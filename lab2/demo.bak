@@ -65,49 +65,25 @@
 (len-list-tail '())
 (len-list-tail '(1 2 3 4 5 6))
 
-; copierea unei liste
-(define (copy-list L)
-  (if (null? L)
-      null
-      (cons (car L) (copy-list (cdr L)))))
-
-(copy-list '(1 2 3 4 5))
-
-(define (copy-list-tail-helper L acc)
-  (if (null? L)
-      acc
-      (copy-list-tail-helper (cdr L) (append acc (list (car L))))))
-
-(define (copy-list-tail L)
-  (copy-list-tail-helper L null))
-
-(copy-list-tail '(1 2 3 4 5))
 ; sa fiti atent la cum se obtine rezultatul
 ; posibil ca, atunci cand transformati din recursiva pe stiva
 ; in recursiva pe coada, rezultatul sa fie inversat
 
+(define (rev l)
+  (if (null? l)
+      null
+      (append (rev (cdr l)) (list (car l)))))
 
-; recursivitate arborescenta - subtip al recursivitatii pe stiva
-; pentru ca se pastreaza apelurile pe stiva pentru a construi rezultatul
-; incepand cu frunzele arborelui de recurenta pana la radacina
-(define (fibo n)
-  (if (<= n 1)
-      n
-      (+ (fibo (- n 1)) (fibo (- n 2)))))
+(rev '(1 2 3 4 5 6 7 8))
 
-(fibo 2)
-(fibo 5)
-(fibo 6)
+(define (rev-tail-helper l acc)
+  (if (null? l)
+      acc
+      (rev-tail-helper (cdr l) (cons (car l) acc))))
 
-; fibo - tail recursion
-(define (fib-tail-helper n a b)
-  (if (zero? n)
-      a
-      (fib-tail-helper (sub1 n) b (+ a b))))
+(define (rev-tail l) (rev-tail-helper l null))
 
-(define (fib-tail n)
-  (fib-tail-helper n 0 1))
+(rev-tail '(1 2 3 4 5 6 7 8))
 
-(fib-tail 2)
-(fib-tail 5)
-(fib-tail 6)
+
+; recursivitate arborescenta - TODO
