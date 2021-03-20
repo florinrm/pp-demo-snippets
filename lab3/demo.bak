@@ -20,41 +20,6 @@
 ; (curry 6 9) ; eroare
 (curry 6) ; procedure
 
-
-(define (celsius-to-kelvin-uncurry x)
-  (uncurry 273.15 x))
-(define (celsius-to-kelvin-curry x)
-  ((curry 273.15) x))
-
-(celsius-to-kelvin-uncurry 0)
-(celsius-to-kelvin-curry 0)
-
-(define (celsius-to-kelvin l)
-  (if (null? l)
-      null
-      (cons (+ (car l) 273.15) (celsius-to-kelvin (cdr l)))))
-
-(define (kelvin-to-celsius l)
-  (if (null? l)
-      null
-      (cons (- (car l) 273.15) (kelvin-to-celsius (cdr l)))))
-
-; observam un pattern, ca putem generaliza totul printr-o functie generala / template, unde difera functia aplicata
-(define (apply-function f l)
-  (if (null? l)
-      null
-      (cons (f (car l)) (apply-function f (cdr l)))))
-
-(define (apply-celsius-to-kelvin l) (apply-function celsius-to-kelvin-curry l))
-(define (apply-kelvin-to-celsius l) (apply-function (λ (x) (- x 273.15)) l))
-
-(celsius-to-kelvin '(1 2 3 4 5))
-(kelvin-to-celsius '(1 2 3 4 5))
-
-(apply-celsius-to-kelvin '(1 2 3 4 5))
-(apply-kelvin-to-celsius '(1 2 3 4 5))
-
-; functionale
 (define l (list 1 2 3 4 5 6 7 8 9 10))
 
 ; map
@@ -114,3 +79,4 @@
 (define matrix (list (list 1 2 3) (list 4 5 6) (list 7 8 9))) ; '((1 2 3) (4 5 6) (7 8 9))
 (map list matrix) ; '(((1 2 3)) ((4 5 6)) ((7 8 9)))
 (apply map list matrix) ; (map list '(1 2 3) '(4 5 6) '(7 8 9))
+
