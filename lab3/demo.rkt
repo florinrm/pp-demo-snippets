@@ -76,6 +76,7 @@
 ; foldl
 (foldl (λ (x acc) (+ acc x)) 0 l) 
 (foldl + 0 l)
+(foldl + 0 l l)
 
 (foldl (λ (x acc) (cons x acc)) '() l) ; reverse list
 (foldl cons '() l) ; reverse list
