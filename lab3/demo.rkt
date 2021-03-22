@@ -45,6 +45,13 @@
       null
       (cons (f (car l)) (apply-function f (cdr l)))))
 
+(define (apply-function-tail-helper f l acc)
+  (if (null? l)
+      acc
+      (apply-function-tail-helper f (cdr l) (append acc (list (f (car l)))))))
+
+(define (apply-function-tail f l) (apply-function-tail-helper f l null))
+
 (define (apply-celsius-to-kelvin l) (apply-function celsius-to-kelvin-curry l))
 (define (apply-kelvin-to-celsius l) (apply-function (λ (x) (- x 273.15)) l))
 
@@ -62,21 +69,23 @@
 (map add1 l)
 
 (map list l)
-(map list l l)
+(map list l l) ; '((1 1) (2 2) (3 3) (4 4) (5 5) (6 6) (7 7) (8 8) (9 9) (10 10))
 
 (map (λ (x y) (+ x y)) l l) ; '(2 4 6 8 10 12 14 16 18 20)
-(map + l l) ; '((1 1) (2 2) (3 3) (4 4) (5 5) (6 6) (7 7) (8 8) (9 9) (10 10))
-(map + l l l) ; '((1 1 1) (2 2 2) (3 3 3) (4 4 4) (5 5 5) (6 6 6) (7 7 7) (8 8 8) (9 9 9) (10 10 10))
+(map + l l) ; '(2 4 6 8 10 12 14 16 18 20)
+(map + l l l) ; '(3 6 9 12 15 18 21 24 27 30)
 
 ; filter
 (filter (λ (x) (> x 5)) l)
 (filter odd? l)
+(filter (λ (x) (not (zero? x))) l)
 
 
 ; foldl
 (foldl (λ (x acc) (+ acc x)) 0 l) 
 (foldl + 0 l)
 (foldl + 0 l l)
+(foldl (λ (x y acc) (+ acc x y)) 0 l l)
 
 (foldl (λ (x acc) (cons x acc)) '() l) ; reverse list
 (foldl cons '() l) ; reverse list
