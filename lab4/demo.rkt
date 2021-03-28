@@ -58,3 +58,8 @@
 
 (define kek (func 6)) ; inchidere functionala
 (kek 9) ; evaluarea functiei ((func 6) 9)
+
+(splitf-at '(1 3 4 5 6) odd?)
+(let*-values (((odd1 even1) (splitf-at '(1 3 4 5 6) odd?))
+              ((even2 odd2) (splitf-at '(1 3 4 5 6) even?)))
+  (append even1 odd1 even2 odd2))
