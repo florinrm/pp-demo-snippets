@@ -27,6 +27,12 @@
 ;         (b 1))
 ;  (+ a b))
 
+(letrec ([sum-of-list (λ (l)
+                        (if (null? l)
+                            0
+                            (+ (car l) (sum-of-list (cdr l)))))])
+  (sum-of-list '(1 2 3 4 5)))
+
 (letrec
    ((even-length?
      (lambda (L)                    ; even-length? este o închidere funcțională  
