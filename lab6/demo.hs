@@ -1,3 +1,5 @@
+import Data.List
+
 -- functii
 f = \x y -> x + y -- cu lambda
 f' x y = x + y -- clasic
@@ -50,6 +52,18 @@ main_functionals = do
     print $ [x | x <- [1..20], mod x 2 == 0]
     print $ [(x, y) | x <- [1..20], y <- [30..40], x `mod` 3 == 0]
     print $ take 10 [x | x <- [0, 2..], x `mod` 3 == 0]
+
+my_repeat :: a -> [a]
+my_repeat x = x : my_repeat x
+
+main_infinite_lists = do
+    print $ take 10 [1..]
+    print $ take 10 [2, 4..]
+    print $ take 10 $ repeat 1
+    print $ take 10 $ my_repeat 1
+    print $ take 10 $ intersperse 2 (repeat 1)
+    print $ dropWhile even [2,4,6,7,9,11,12,13,14]
+    print $ take 10 $ iterate (+ 1) 1
 
 -- if - then - else
 copy_list :: [a] -> [a]
