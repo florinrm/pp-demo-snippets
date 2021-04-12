@@ -94,7 +94,7 @@ factorial x = if x == 0 then 1 else x * factorial (x - 1)
 
 -- pattern matching
 factorial2 :: Integer -> Integer
-factorial2 0 = 0
+factorial2 0 = 1
 factorial2 x = x * factorial2 (x - 1)
 
 -- garzi
