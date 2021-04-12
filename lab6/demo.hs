@@ -106,7 +106,7 @@ factorial3 x
 -- case of
 factorial4 :: Integer -> Integer
 factorial4 x = case x of
-    0 -> 0
+    0 -> 1
     _ -> x * factorial4 (x - 1)
 
 -- cu let
