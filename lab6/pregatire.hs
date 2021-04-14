@@ -17,9 +17,13 @@ prime n = primeHelper n 2
 primesDecomposition :: Integer -> (Integer, Integer)
 primesDecomposition n = let
     pairs = [(x, n - x) | x <- [2..n], prime x, prime (n - x), x <= n - x]
-    in if null pairs then error "nu se poate descompune in numere prime" else head pairs
+    in if null pairs 
+        then error "nu se poate descompune in numere prime" 
+        else head pairs
 
 primesDecompositionWithTypes :: Integer -> Maybe (Integer, Integer)
 primesDecompositionWithTypes n = let
     pairs = [(x, n - x) | x <- [2..n], prime x, prime (n - x), x <= n - x]
-    in if null pairs then Nothing else Just $ head pairs
+    in if null pairs 
+        then Nothing 
+        else Just $ head pairs
