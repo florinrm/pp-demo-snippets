@@ -1,6 +1,9 @@
+import Data.Maybe
+
 -- type - reprezinta un alias, mai jos avem alias-uri pentru coada si pentru stiva, implementate ca liste
 type Stack a = [a]
 type Queue a = [a]
+type Point = (Int, Int)
 
 createStack :: Stack a
 createStack = []
@@ -36,8 +39,8 @@ mainQueue = do
 
 
 -- data - aici putem avea cel putin un constructor pentru tipul de date (constructorul este similar ca concept cu constructorul de clase din Java)
-data Square = CreateSquare Double -- aici avem un singur membru (anonim)
-data Triangle = CreateRegularTriangle Integer Integer Integer | CreateEquilateralTriangle Integer  -- mai multi constructori
+data Square = CreateSquare Double deriving Show -- aici avem un singur membru (anonim)
+data Triangle = CreateRegularTriangle Integer Integer Integer | CreateEquilateralTriangle Integer deriving Show -- mai multi constructori
 -- perimetrul unui patrat
 perimeterSquare :: Square -> Double
 perimeterSquare (CreateSquare side) = 4 * side
@@ -47,7 +50,7 @@ mainSquare = do
     print $ perimeterSquare $ CreateSquare 10
 
 -- tipuri enumerate - functioneaza ca enum din C / Java
-data Color = Red | Black | Green | Blue | White
+data Color = Red | Black | Green | Blue | White deriving Show
 isNonColor :: Color -> Bool
 isNonColor Black = True
 isNonColor White = True
@@ -73,7 +76,7 @@ data Circle a = CreateCircle a -- a reprezinta tipul membrului din Circle
 data Rectagle = CreateRectangle {
     lengthRectangle :: Double,
     widthRectangle :: Double    
-}
+} deriving Show
 perimeterRectangle :: Rectagle -> Double
 perimeterRectangle rectangle = ((widthRectangle rectangle) + (lengthRectangle rectangle)) * 2
 -- putem sa facem si ca mai sus, cand aveam membrii anonimi
@@ -94,7 +97,7 @@ data BST a = Nil | CreateNode a (BST a) (BST a) -- arbore binar de cautare
     }; 
 -}
 
-data List a = EmptyList | Cons a (List a)
+data List a = EmptyList | Cons a (List a) deriving Show
 -- EmptyList - constructorul pentru lista goala
 -- Cons - constructor pentru o lista cu cel putin un element
 -- Cons are 2 membrii: head-ul listei si restul listei
@@ -103,5 +106,23 @@ insertList value EmptyList = Cons value EmptyList
 insertList value (Cons val list) = Cons value (Cons val list)
 
 -- newtype - spre deosebire, are un singur constructor si un singur membru
-newtype Celsius = MakeCelsius Float
-newtype Pair a b = Pair { getPair :: (a, b) }
+newtype Celsius = MakeCelsius Float deriving Show
+newtype Pair a b = Pair { getPair :: (a, b) } deriving Show
+
+-- Maybe
+primeHelper :: Integer -> Integer -> Bool
+primeHelper n div 
+    | n < 2 = False
+    | div == n = True
+    | n `mod` div == 0 = False
+    | otherwise = primeHelper n (div + 1)
+
+prime :: Integer -> Bool
+prime n = primeHelper n 2
+
+primesDecomposition :: Integer -> Maybe (Integer, Integer)
+primesDecomposition n = let
+    pairs = [(x, n - x) | x <- [2..n], prime x, prime (n - x), x <= n - x]
+    in if null pairs 
+        then Nothing 
+        else Just $ head pairs
