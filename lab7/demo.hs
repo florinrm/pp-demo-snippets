@@ -126,3 +126,16 @@ primesDecomposition n = let
     in if null pairs 
         then Nothing 
         else Just $ head pairs
+
+data Vector = V
+  { vx :: Double
+  , vy :: Double
+  , vz :: Double
+  } deriving (Show, Eq)
+
+lengthV :: Vector -> Double
+lengthV (V vx vy vz) = sqrt $ vx * vx + vy * vy + vz * vz
+
+normalizeV :: Vector -> Vector
+normalizeV v@(V vx vy vz) = V (vx * invLen) (vy * invLen) (vz * invLen)
+  where invLen = 1 / (lengthV v) 
