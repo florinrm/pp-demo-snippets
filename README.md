@@ -9,4 +9,5 @@
 - [Laboratorul 5 - intarzierea evaluarii](lab5/demo.rkt)
 ### Haskell
 - [Laboratorul 6 - introducere](lab6/demo.hs)
+- [Laboratorul 7 - tipuri de date](lab7/demo.hs)
 ### Prolog
