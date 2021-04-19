@@ -46,6 +46,10 @@ perimeterSquare :: Square -> Double
 perimeterSquare (CreateSquare side) = 4 * side
 -- pentru ca SquareDouble are un membru anonim, folosind pattern matching ca sa il putem accesa, ca sa putem calcula perimetrul unui patrat
 
+perimeterTriangle :: Triangle -> Integer
+perimeterTriangle (CreateTriangle a b c) = a + b + c
+perimeterTriangle (CreateEquilateralTriangle a) = 3 * a
+
 mainSquare = do
     print $ perimeterSquare $ CreateSquare 10
 
@@ -71,6 +75,7 @@ data Circle a = CreateCircle a -- a reprezinta tipul membrului din Circle
         }
     }
 -}
+data MyPair a b = CreatePair a b | CreateMono a
 
 -- recorded data (tipuri inregistrate) - aici, avem membrii cu nume, in mod explicit
 data Rectagle = CreateRectangle {
