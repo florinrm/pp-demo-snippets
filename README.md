@@ -10,4 +10,6 @@
 ### Haskell
 - [Laboratorul 6 - introducere](lab6/demo.hs)
 - [Laboratorul 7 - tipuri de date](lab7/demo.hs)
+- [Laboratorul 8 - clase](lab8/demo.hs)
 ### Prolog
+- [Laboratorul 9 - introducere](lab9/demo.pl)
