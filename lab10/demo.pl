@@ -86,7 +86,9 @@ auCopil2(X, Y, Z) :- parinte(X, Z), parinte(Y, Z), !.
 
 p(a). 
 p(b). 
-p(A/B) :- q(A), !, t(A/B). 
+p(A/B) :- q(A), !, t(A/B). % dacă s-a generat deja o soluție pentru ce este înainte de !, nu se mai generează alte soluții
+% în cazul de față, dacă s-a generat o soluție pentru q, atunci restul condițiilor merg normal, dar nu se vor mai genera
+% alte soluții pentru predicatul q
 p(d).
 
 q(a). 
@@ -97,3 +99,14 @@ t(a/a).
 t(a/b). 
 t(b/c). 
 t(b/d). 
+
+min(X, Y, Min) :- X < Y, X = Min. % regula 1
+min(X, Y, Min) :- X >= Y, Y = Min. % regula 2
+
+% green cut
+min2(X, Y, Min) :- X < Y, !, X = Min. % regula 1
+min2(X, Y, Min) :- X >= Y, Y = Min. % regula 2
+
+% red cut
+min3(X, Y, Min) :- X < Y, !, X = Min. 
+min3(_, Y, Min) :- Y = Min.
