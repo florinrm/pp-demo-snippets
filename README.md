@@ -13,3 +13,4 @@
 - [Laboratorul 8 - clase](lab8/demo.hs)
 ### Prolog
 - [Laboratorul 9 - introducere](lab9/demo.pl)
+- [Laboratorul 10 - legare și execuție](lab10/demo.pl)
