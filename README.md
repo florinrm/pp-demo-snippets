@@ -15,3 +15,5 @@
 - [Laboratorul 9 - introducere](lab9/demo.pl)
 - [Laboratorul 10 - legare și execuție](lab10/demo.pl)
 - [Laboratorul 12 - probleme](lab12/demo.pl)
+### Slides laborator
+- [link](https://drive.google.com/drive/folders/1KTxlpGLy38cCCp0McomA90WpZqVuZDIm?usp=sharing)
