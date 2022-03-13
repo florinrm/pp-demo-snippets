@@ -20,6 +20,20 @@
 ; (curry 6 9) ; eroare
 (curry 6) ; procedure
 
+(define (curry->uncurry f)
+  (lambda (x y)
+    ((f x) y)))
+
+(define (uncurry->curry f)
+  (lambda (x)
+    (lambda (y)
+      (f x y))))
+
+; (map ((uncurry->curry (λ (x y) (+ 3 x y))) 5) (list 1 2 3 4 5))
+
+(((uncurry->curry uncurry) 1) 2)
+((curry->uncurry curry) 1 2)
+
 
 (define (celsius-to-kelvin-uncurry x)
   (uncurry 273.15 x))
