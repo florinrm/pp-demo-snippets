@@ -27,6 +27,10 @@
 ;         (b 1))
 ;  (+ a b))
 
+(letrec ((a (λ () (+ b 10)))
+         (b 1))
+  (+ (a) b))
+
 (letrec ([sum-of-list (λ (l)
                         (if (null? l)
                             0
