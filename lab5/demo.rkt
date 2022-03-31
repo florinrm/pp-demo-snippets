@@ -28,9 +28,13 @@ ones-stream
 ; suma a doua liste, element cu element
 (define list-add
   (λ (l1 l2)
-    (if (null? l1) l1       ; nu apare la stream-uri pentru ca sunt infinite
+    (if (or (null? l1) (null? l2))
+        null ; nu apare la stream-uri pentru ca sunt infinite
         (cons (+ (car l1) (car l2))
               (list-add (cdr l1) (cdr l2))))))
+(list-add (list 1 2 3 4) (list 5 6 7 8))
+(list-add (list 1 2 3) (list 5 6 7 8))
+(list-add (list 1 2 3 4) (list 5 6 7))
 
 ; suma a doua fluxuri
 (define add
@@ -46,6 +50,18 @@ ones-stream
 
 
 (define naturals-stream (make-naturals 0))
+
+; varianta 1 - liste
+(define naturals
+  (λ (n)
+    (cons n (λ () (naturals (add1 n))))))
+
+; varianta 2 - stream
+(define naturals-streams
+  (λ (n)
+    (stream-cons n (naturals-streams (add1 n)))))
+
+(stream-take (naturals-streams 0) 10)
 
 (define fibo-stream
   (stream-cons 0
