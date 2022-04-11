@@ -1,134 +1,146 @@
--- polimorfism parametric
-myLength :: [a] -> Integer
-myLength [] = 0
-myLength (x:xs) = 1 + myLength xs
+import Data.Maybe
+
+-- type - reprezinta un alias, mai jos avem alias-uri pentru coada si pentru stiva, implementate ca liste
+type Stack a = [a]
+type Queue a = [a]
+type Point = (Int, Int)
+
+createStack :: Stack a
+createStack = []
+
+pushStack :: a -> Stack a -> Stack a
+pushStack value [] = [value]
+pushStack value l = l ++ [value]
+
+popStack :: Stack a -> Stack a
+popStack [] = []
+popStack l = init l
+
+mainStack = do
+    print $ pushStack 79 $ pushStack 69 createStack
+    print $ pushStack 10 $ pushStack 79 $ pushStack 69 createStack
+    print $ popStack $ pushStack 10 $ pushStack 79 $ pushStack 69 createStack
+
+createQueue :: Queue a
+createQueue = []
+
+pushQueue :: a -> Queue a -> Queue a
+pushQueue value [] = [value]
+pushQueue value list = list ++ [value]
+
+popQueue :: Queue a -> Queue a
+popQueue [] = []
+popQueue (x:xs) = xs
+
+mainQueue = do
+    print $ pushQueue 79 $ pushQueue 69 createQueue
+    print $ pushQueue 10 $ pushQueue 79 $ pushQueue 69 createQueue
+    print $ popQueue $ pushQueue 10 $ pushQueue 79 $ pushQueue 69 createQueue
 
 
--- polimorfism ad-hoc, datorita lui Eq a, caci trebuie sa mearga (==) pe elementele de tip a
-myElem :: Eq a => a -> [a] -> Bool
-myElem x [] = False
-myElem x (l:list) = if x == l then True else myElem x list
+-- data - aici putem avea cel putin un constructor pentru tipul de date (constructorul este similar ca concept cu constructorul de clase din Java)
+data Square = CreateSquare Double deriving Show -- aici avem un singur membru (anonim)
+data Triangle = CreateRegularTriangle Integer Integer Integer | CreateEquilateralTriangle Integer deriving Show -- mai multi constructori
+-- perimetrul unui patrat
+perimeterSquare :: Square -> Double
+perimeterSquare (CreateSquare side) = 4 * side
+-- pentru ca SquareDouble are un membru anonim, folosind pattern matching ca sa il putem accesa, ca sa putem calcula perimetrul unui patrat
 
+perimeterTriangle :: Triangle -> Integer
+perimeterTriangle (CreateTriangle a b c) = a + b + c
+perimeterTriangle (CreateEquilateralTriangle a) = 3 * a
 
-data Point = CreatePoint {
-    x :: Int,
-    y :: Int
-}
+mainSquare = do
+    print $ perimeterSquare $ CreateSquare 10
 
--- instantiem Eq pentru Point, ca sa putem folosi ==
-instance Eq Point where
-    CreatePoint x1 y1 == CreatePoint x2 y2 = x1 == x2 && y1 == y2
-    p1 /= p2 = not (p1 == p2)
+-- tipuri enumerate - functioneaza ca enum din C / Java
+data Color = Red | Black | Green | Blue | White deriving Show
+isNonColor :: Color -> Bool
+isNonColor Black = True
+isNonColor White = True
+isNonColor _ = False -- restul de culor
 
--- forme geometrice
--- ne construim o clasa cu care putem calcula perimetrul si aria unei forme geometrice
-class Calculate a where
-    dummyFunction :: a -> Integer
-    dummyFunction _ = 0 -- functie definita direct in clasa
+mainColor = do
+    print $ isNonColor Blue
+    print $ isNonColor Black
 
-    calculateArea :: a -> Double
-    calculatePerimeter :: a -> Double
+-- tipuri parametrizate / generice - similar cu clasele generice din Java
+data Circle a = CreateCircle a -- a reprezinta tipul membrului din Circle
+{-
+    analogie cu Java
+    class Circle<T> {
+        T radius;
+        Circle (T radius) {
+            this.radius = radius;
+        }
+    }
+-}
+data MyPair a b = CreatePair a b | CreateMono a
 
-data Square = CreateSquare {
-    side :: Double
-} deriving (Show, Ord, Eq) -- automat putem folosi ==, < si show pe o variabila de tip Square, Haskellul face automat mecanismul de <, == si toString
-
-data Rectangle = CreateRectagle {
-    width :: Double,
-    height :: Double
+-- recorded data (tipuri inregistrate) - aici, avem membrii cu nume, in mod explicit
+data Rectagle = CreateRectangle {
+    lengthRectangle :: Double,
+    widthRectangle :: Double    
 } deriving Show
+perimeterRectangle :: Rectagle -> Double
+perimeterRectangle rectangle = ((widthRectangle rectangle) + (lengthRectangle rectangle)) * 2
+-- putem sa facem si ca mai sus, cand aveam membrii anonimi
+-- perimeterRectangle (CreateRectangle lengthRec widthRec) = (widthRec + lengthRec) * 2
 
-data Circle = CreateCircle {
-    radius :: Double
-}
+mainRectangle = do
+    print $ perimeterRectangle $ CreateRectangle 6 9
+    print $ widthRectangle $ CreateRectangle 6 9
 
-data Triangle = RegularTriangle {
-    firstSide :: Double,
-    secondSide :: Double,
-    thirdSide :: Double
-} | EquilateralTriangle {
-    triangleSide :: Double
-} deriving Eq
 
--- instantiem Calculate pentru fiecare forma geometrica
-instance Calculate Square where
-    calculateArea (CreateSquare side) = side * side
-    calculatePerimeter (CreateSquare side) = 4 * side
-    
-instance Calculate Rectangle where
-    calculateArea (CreateRectagle width height) = width * height
-    calculatePerimeter (CreateRectagle width height) = 2 * (width + height)
+-- tipuri recursive (pot fi si ele generice)
+data BST a = Nil | CreateNode a (BST a) (BST a) -- arbore binar de cautare
+{-
+    analogie cu C (struct) - arbore binar de cautare (exemplul de mai sus)
+    struct node { 
+        int key; 
+        struct node *left, *right; 
+    }; 
+-}
 
-instance Calculate Circle where
-    calculateArea (CreateCircle radius) = 3.14 * radius * radius
-    calculatePerimeter (CreateCircle radius) = 2 * 3.14 * radius
+data List a = EmptyList | Cons a (List a) deriving Show
+-- EmptyList - constructorul pentru lista goala
+-- Cons - constructor pentru o lista cu cel putin un element
+-- Cons are 2 membrii: head-ul listei si restul listei
+insertList :: a -> List a -> List a
+insertList value EmptyList = Cons value EmptyList
+insertList value (Cons val list) = Cons value (Cons val list)
 
--- instantiem doar Eq pentru Rectangle (avem deriving Show)
-instance Eq Rectangle where
-    CreateRectagle width1 height1 == CreateRectagle width2 height2 = (width1 == width2) && (height1 == height2)
-    -- d1 /= d2 = not (d1 == d2) -- este optional, deoarece este deja definit in clasa Eq
+-- newtype - spre deosebire, are un singur constructor si un singur membru
+newtype Celsius = MakeCelsius Float deriving Show
+newtype Pair a b = Pair { getPair :: (a, b) } deriving Show
 
-instance Ord Rectangle where
-    d1@(CreateRectagle width1 height1) <= d2@(CreateRectagle width2 height2) = ((calculateArea d1) <= (calculateArea d2)) && ((calculatePerimeter d1) <= (calculatePerimeter d2))
-    d1 > d2 = not (d1 <= d2)  -- este optional, deoarece este deja definit in clasa Ord
-    d1@(CreateRectagle width1 height1) < d2@(CreateRectagle width2 height2) = ((calculateArea d1) < (calculateArea d2)) && ((calculatePerimeter d1) < (calculatePerimeter d2))
-    d1 >= d2 = not (d1 < d2) -- este optional, deoarece este deja definit in clasa Ord
+-- Maybe
+primeHelper :: Integer -> Integer -> Bool
+primeHelper n div 
+    | n < 2 = False
+    | div == n = True
+    | n `mod` div == 0 = False
+    | otherwise = primeHelper n (div + 1)
 
--- instantiem Show si Eq pentru Circle
-instance Show Circle where
-    show (CreateCircle radius) = "Cercul cu raza " ++ (show radius)
+prime :: Integer -> Bool
+prime n = primeHelper n 2
 
-instance Eq Circle where
-    (CreateCircle radius1) == (CreateCircle radius2) = (radius1 == radius2)
-    d1 /= d2 = not (d1 == d2)
+primesDecomposition :: Integer -> Maybe (Integer, Integer)
+primesDecomposition n = let
+    pairs = [(x, n - x) | x <- [2..n], prime x, prime (n - x), x <= n - x]
+    in if null pairs 
+        then Nothing 
+        else Just $ head pairs
 
--- instantiem show pentru Triangle
-instance Show Triangle where
-    show (RegularTriangle x y z) = "Triunghiul cu laturile de lungime: " ++ (show x) ++ ", " ++ (show y) ++ ", " ++ (show z)
-    show (EquilateralTriangle x) = "Triunghiul echilateral cu laturile cu lungimea " ++ (show x)
+data Vector = V
+  { vx :: Double
+  , vy :: Double
+  , vz :: Double
+  } deriving (Show, Eq)
 
--- containere - de regula pe tipuri definite de noi
+lengthV :: Vector -> Double
+lengthV (V vx vy vz) = sqrt $ vx * vx + vy * vy + vz * vz
 
-data BST a = BSTNil | BSTNode a (BST a) (BST a) -- deriving Show
-
-insert :: (Ord a, Eq a) => BST a -> a -> BST a
-insert BSTNil elem = BSTNode elem BSTNil BSTNil
-insert root@(BSTNode value left right) elem
-  | value == elem = root
-  | value < elem = BSTNode value left (insert right elem)
-  | value > elem = BSTNode value (insert left elem) right 
-
-inorder :: BST a -> [a]
-inorder BSTNil = []
-inorder (BSTNode root left right) = inorder left ++ [root] ++ inorder right
-
-printLevel :: Show a => Char -> Int -> BST a -> [Char]
-printLevel _ _ BSTNil = ""
-printLevel tab level (BSTNode root left right) = (replicate level tab) ++ (show root) ++ "\n" 
-    ++ (printLevel tab (level + 1) left) 
-    ++ (printLevel tab (level + 1) right) 
-
-instance Show a => Show (BST a) where
-    show BSTNil = ""
-    show (BSTNode root left right) = printLevel '\t' 0 (BSTNode root left right)
-
-class Container t where
-    contents :: t a -> [a]
-
-instance Container BST where
-    contents BSTNil = []
-    contents (BSTNode a left right) = [a] ++ (contents left) ++ (contents right)
-
-class Invertible a where
-    invert :: a -> a
-
-instance Invertible (BST a) where
-    invert BSTNil = BSTNil
-    invert (BSTNode a left right) = BSTNode a (invert right) (invert left)
-
-instance Functor BST where
-    fmap f BSTNil = BSTNil
-    fmap f (BSTNode a left right) = BSTNode (f a) (fmap f left) (fmap f right)
-
-instance Foldable BST where
-    foldr f acc tree = foldr f acc $ inorder tree
+normalizeV :: Vector -> Vector
+normalizeV v@(V vx vy vz) = V (vx * invLen) (vy * invLen) (vz * invLen)
+  where invLen = 1 / (lengthV v) 

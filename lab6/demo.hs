@@ -49,21 +49,6 @@ main_functionals = do
     print $ foldr (\x acc -> x : acc) [] [1, 2, 3, 4]
     print $ zip [1, 2, 3] [4, 5, 6]
     print $ zipWith (+) [1, 2, 3] [4, 5, 6]
-    print $ [x | x <- [1..20], mod x 2 == 0]
-    print $ [(x, y) | x <- [1..20], y <- [30..40], x `mod` 3 == 0]
-    print $ take 10 [x | x <- [0, 2..], x `mod` 3 == 0]
-
-my_repeat :: a -> [a]
-my_repeat x = x : my_repeat x
-
-main_infinite_lists = do
-    print $ take 10 [1..]
-    print $ take 10 [2, 4..]
-    print $ take 10 $ repeat 1
-    print $ take 10 $ my_repeat 1
-    print $ take 10 $ intersperse 2 (repeat 1)
-    print $ dropWhile even [2,4,6,7,9,11,12,13,14]
-    print $ take 10 $ iterate (+ 1) 1
 
 -- if - then - else
 copy_list :: [a] -> [a]
@@ -140,14 +125,3 @@ h2 a = (c + b)
     where
         c = b
         b = a + 1  -- letrec din Racket, aici nu avem eroare datorita evaluarii lenese
-
--- point wise vs point free
-square x = x * x
-inc x = x + 1
-
--- point-wise
-some_func x = inc (square (x + 2))
-
--- point-free
-some_func_point_free = inc . square . (+ 2)
-some_func_point_free2 = inc . square . (2 +)
