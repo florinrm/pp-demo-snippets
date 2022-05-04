@@ -1,3 +1,10 @@
+import qualified Data.Foldable as F
+
+{-
+    importul de mai sus e un fix in caz ca aveti probleme
+    cu importul de Foldable (de regula nu prea se intampla)
+-}
+
 -- polimorfism parametric
 myLength :: [a] -> Integer
 myLength [] = 0
@@ -87,48 +94,62 @@ instance Show Triangle where
     show (RegularTriangle x y z) = "Triunghiul cu laturile de lungime: " ++ (show x) ++ ", " ++ (show y) ++ ", " ++ (show z)
     show (EquilateralTriangle x) = "Triunghiul echilateral cu laturile cu lungimea " ++ (show x)
 
--- containere - de regula pe tipuri definite de noi
-
-data BST a = BSTNil | BSTNode a (BST a) (BST a) -- deriving Show
-
-insert :: (Ord a, Eq a) => BST a -> a -> BST a
-insert BSTNil elem = BSTNode elem BSTNil BSTNil
-insert root@(BSTNode value left right) elem
-  | value == elem = root
-  | value < elem = BSTNode value left (insert right elem)
-  | value > elem = BSTNode value (insert left elem) right 
-
-inorder :: BST a -> [a]
-inorder BSTNil = []
-inorder (BSTNode root left right) = inorder left ++ [root] ++ inorder right
-
-printLevel :: Show a => Char -> Int -> BST a -> [Char]
-printLevel _ _ BSTNil = ""
-printLevel tab level (BSTNode root left right) = (replicate level tab) ++ (show root) ++ "\n" 
-    ++ (printLevel tab (level + 1) left) 
-    ++ (printLevel tab (level + 1) right) 
-
-instance Show a => Show (BST a) where
-    show BSTNil = ""
-    show (BSTNode root left right) = printLevel '\t' 0 (BSTNode root left right)
-
 class Container t where
     contents :: t a -> [a]
-
-instance Container BST where
-    contents BSTNil = []
-    contents (BSTNode a left right) = [a] ++ (contents left) ++ (contents right)
 
 class Invertible a where
     invert :: a -> a
 
-instance Invertible (BST a) where
-    invert BSTNil = BSTNil
-    invert (BSTNode a left right) = BSTNode a (invert right) (invert left)
+-- containere - de regula pe tipuri definite de noi
 
-instance Functor BST where
-    fmap f BSTNil = BSTNil
-    fmap f (BSTNode a left right) = BSTNode (f a) (fmap f left) (fmap f right)
+data List a = EmptyList | Cons a (List a)
+-- EmptyList - constructorul pentru lista goala
+-- Cons - constructor pentru o lista cu cel putin un element
+-- Cons are 2 membrii: head-ul listei si restul listei
+insertList :: a -> List a -> List a
+insertList value EmptyList = Cons value EmptyList
+insertList value (Cons val list) = Cons value (Cons val list)
 
-instance Foldable BST where
-    foldr f acc tree = foldr f acc $ inorder tree
+fromNormalList :: [a] -> List a
+fromNormalList lst = foldr (\x acc -> Cons x acc) EmptyList lst
+
+addComma :: Show a => List a -> [Char]
+addComma EmptyList = ""
+addComma _ = ", "
+
+printHelper :: Show a => List a -> [Char] -> [Char]
+printHelper EmptyList acc = acc
+printHelper (Cons value lst) acc = printHelper lst $ acc ++ show value ++ addComma lst
+
+instance Show a => Show (List a) where
+    show EmptyList = "[]"
+    show lst = "[" ++ (printHelper lst "") ++ "]"
+
+instance Eq a => Eq (List a) where
+    (==) EmptyList EmptyList = True
+    (==) (Cons value1 lst1) (Cons value2 lst2) = value1 == value2 && lst1 == lst2
+    (==) _ _ = False
+
+instance Ord a => Ord (List a) where
+    (<) lst1 lst2 = let
+        l1 = length $ contents lst1
+        l2 = length $ contents lst2
+        in l1 < l2
+    (<=) lst1 lst2 = let
+        l1 = length $ contents lst1
+        l2 = length $ contents lst2
+        in l1 <= l2
+
+instance Functor List where
+    fmap f EmptyList = EmptyList
+    fmap f (Cons value lst) = Cons (f value) (fmap f lst)
+
+instance F.Foldable List where
+    foldr f acc EmptyList = acc
+    foldr f acc (Cons value lst) = F.foldr f (f value acc) lst
+
+instance Container List where
+    contents lst = foldl (\acc x -> x : acc) [] $ F.foldr (:) [] lst
+
+instance Invertible (List a) where
+    invert = fromNormalList . reverse . contents
