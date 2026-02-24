@@ -1,69 +1,75 @@
 #lang racket
-; evaluare lenesa in Racket
 
-; varianta 1 - inchideri functionale
-(define sum (λ (x y) (λ () (+ x y))))
-(sum 1 2) ; promisiune (procedura)
-((sum 1 2)) ; se forteaza promisiunea
+; legare statica - let
+(define (f a b)
+  (let ((a 6) (b 9))
+    (+ a b))         ; context 2 - a are valoarea 6, b are valoarea 9 (in let)
+  ; (+ a b)          ; context 3 - a are valoarea 4, b are valoarea 2 (in afara let-ului)
+  )
 
-; varianta 2 - delay si force
-(define sum2 (λ (x y) (delay (+ x y))))
-(sum2 1 2) ; promisiune
-(force (sum2 1 2))
+(f 4 2)              ; context 1 - a are valoarea 4, b are valoarea 2
 
-; cu ajutorul evaluarii lenesa, putem construi structuri de date infinite (liste infinite), adica streams / fluxuri
-(define ones-stream (cons 1 (λ () ones-stream)))
-ones-stream
+; legarea globala - definirea unei variabila cu define, nu se poate schimba valoarea unei variabile in Racket!
+(define a 10)
 
-; este definit in laborator - exista unul in Racket deja, dar il folositi pe cel din laborator
-(define (stream-take s n)
-  (cond ((zero? n) '())
-        ((stream-empty? s) '())
-        (else (cons (stream-first s)
-                    (stream-take (stream-rest s) (- n 1))))))
+; let
+(let ((a 5)
+      (b a))
+  (+ a b)) ; 15 - a este vizibil doar in corp
 
-(define ones-stream-2 (stream-cons 1 ones-stream-2))
-(stream-take ones-stream-2 10)
+; let*
+(let* ((a 5)
+      (b a))
+  (+ a b)) ; 10 - a este vizibil si in urmatoarea legare
 
-; suma a doua liste, element cu element
-(define list-add
-  (λ (l1 l2)
-    (if (or (null? l1) (null? l2))
-        null ; nu apare la stream-uri pentru ca sunt infinite
-        (cons (+ (car l1) (car l2))
-              (list-add (cdr l1) (cdr l2))))))
-(list-add (list 1 2 3 4) (list 5 6 7 8))
-(list-add (list 1 2 3) (list 5 6 7 8))
-(list-add (list 1 2 3 4) (list 5 6 7))
+;letrec
+;(letrec ((a (+ b 10)) ; se poate vedea variabila b, insa ea apare ca undefined, fiindca ea nu este evaluata
+;         (b 1))
+;  (+ a b))
 
-; suma a doua fluxuri
-(define add
-  (λ (a b)
-    (stream-cons
-     (+ (stream-first a) (stream-first b))
-     (add (stream-rest a) (stream-rest b)))))
+(letrec ((a (λ () (+ b 10)))
+         (b 1))
+  (+ (a) b))
 
-(stream-take (add ones-stream-2 ones-stream-2) 10)
+(letrec ([sum-of-list (λ (l)
+                        (if (null? l)
+                            0
+                            (+ (car l) (sum-of-list (cdr l)))))])
+  (sum-of-list '(1 2 3 4 5)))
 
-(define (make-naturals k)
-  (stream-cons k (make-naturals (add1 k))))
+(letrec
+   ((even-length?
+     (lambda (L)                    ; even-length? este o închidere funcțională  
+       (if (null? L)                ; deci corpul funcției nu este evaluat la  
+           #t                       ; momentul definirii ei  
+           (odd-length? (cdr L))))) ; deci nu e o problemă că încă nu știm cine e odd-length?  
+    (odd-length?   
+     (lambda (L)   
+       (if (null? L)  
+           #f  
+           (even-length? (cdr L))))))
+  (even-length? '(1 2 3 4 5))) 
 
 
-(define naturals-stream (make-naturals 0))
+; named let - o functie intr-o alta functie
+; utilizare - calcul pe un range de tip [min, max]
+; utilizare - functii recursive pe coada
+(define (sum-list L)
+  (let sum-list-iter ((lst L) (acc 0))
+    (if (null? lst)
+        acc
+        (sum-list-iter (cdr lst) (+ acc (car lst))))))
+(sum-list '(1 2 3 4 5))
 
-; varianta 1 - liste
-(define naturals
-  (λ (n)
-    (cons n (λ () (naturals (add1 n))))))
+; inchidere functionala
+(define (func x)
+  (λ (y)
+    (+ x y)))
 
-; varianta 2 - stream
-(define naturals-streams
-  (λ (n)
-    (stream-cons n (naturals-streams (add1 n)))))
+(define kek (func 6)) ; inchidere functionala
+(kek 9) ; evaluarea functiei ((func 6) 9)
 
-(stream-take (naturals-streams 0) 10)
-
-(define fibo-stream
-  (stream-cons 0
-     (stream-cons 1
-        (add fibo-stream (stream-rest fibo-stream)))))
+(splitf-at '(1 3 4 5 6) odd?)
+(let*-values (((odd1 even1) (splitf-at '(1 3 4 5 6) odd?))
+              ((even2 odd2) (splitf-at '(1 3 4 5 6) even?)))
+  (append even1 odd1 even2 odd2))

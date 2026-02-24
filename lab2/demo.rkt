@@ -1,10 +1,75 @@
 #lang racket
 
-; templates
-; recursivitate pe stiva -> (operatie (car l) (func (cdr l)))
-; recursivitate pe coada -> (func-tail-helper (cdr l) (operatie acc (car l)))
+; operatii de baza
+(+ 6 9) ; 6 + 9
+(max 6 9)
+(+ (* 5 10) (/ 100 2)) ; (5 * 10) + (100 / 2)
 
-; transformare recursivitate pe stiva -> recursivitate pe coada
+; conditionale
+(if (= 6 9)
+    420
+    (max (+ 3 4) (* 10 8)))
+
+(if (= 6 9)
+    100
+    (if (> 6 9)
+        420
+        (if (< 6 9)
+            1000
+            69)))
+
+(cond
+  ((= 6 9) 100)
+  ((> 6 9) 420)
+  ((< 6 9) 1000)
+  (else 69))
+
+(cond
+  [(= 6 9) 100]
+  [(> 6 9) 420]
+  [(< 6 9) 1000]
+  [else 69])
+
+; define - legarea valorilor la variabile
+(define n 100)
+(define p (+ n 320))
+
+(define (inc nr) (+ 1 nr))
+(define (dec nr) (- nr 1))
+(define (add x y) (+ x y))
+
+; perechi - tuplu format din 2 elemente, de forma (x, y)
+(define pair (cons 1 2))
+(car pair) ; primul element din pereche
+(cdr pair) ; al doilea element din pereche
+
+; liste - generalizare a perechilor, o lista (nevida) fiind o pereche formata din primul element si din restul listei
+(list 1 2 3 4 5 6)
+'(1 2 3 4 5 6)
+
+(list (+ 1 2) 3 4) ; '(3 3 4)
+'((+ 1 2) 3 4) ; '((+ 1 2) 3 4)
+
+'() ; lista goala
+null ; lista goala
+
+; adaugarea unui element in fata unei liste
+(cons 5 (list 1 2 3 4)) ; '(5 1 2 3 4)
+
+; concatenarea dintre 2 liste
+(append (list 1 2 3) (list 3 4 5)) ; '(1 2 3 3 4 5)
+
+; construirea unei liste cu cons
+(cons 1 (cons 2 (cons 3 (cons 4 null)))) ; '(1 2 3 4)
+
+; verificarea daca un element e lista
+(list? '(1 2 3 4 5)) ; #t
+(list? (list 1 2 3 4 5)) ; #t
+(list? 100) ; #f
+
+
+
+; exemple de functii
 
 (define (factorial n)
   (if (= 0 n)
@@ -15,16 +80,14 @@
 (factorial 4)
 (factorial 6)
 
-(define (factorial-tail-helper n acc)
+(define (factorial2 n)
   (if (zero? n)
-      acc
-      (factorial-tail-helper (- n 1) (* acc n))))
+      1
+      (* n (factorial2 (sub1 n)))))
 
-(define (factorial-tail n) (factorial-tail-helper n 1))
-
-(factorial-tail 0)
-(factorial-tail 4)
-(factorial-tail 6)
+(factorial2 0)
+(factorial2 4)
+(factorial2 6)
 
 ; suma unei liste
 (define (sum-list l)
@@ -35,17 +98,6 @@
 (sum-list '())
 (sum-list (list 1 2 3 4 5 6))
 
-(define (sum-list-tail-helper l acc)
-  (if (null? l)
-      acc
-      (sum-list-tail-helper (cdr l) (+ acc (car l)))))
-
-(define (sum-list-tail l) (sum-list-tail-helper l 0))
-
-(sum-list-tail '())
-(sum-list-tail (list 1 2 3 4 5 6))
-
-
 ; lungimea unei liste
 (define (len-list l)
   (if (null? l)
@@ -55,70 +107,34 @@
 (len-list '())
 (len-list '(1 2 3 4 5 6))
 
-(define (len-list-tail-helper l acc)
+; daca un element apartine unei liste
+(define (elem-list-if l e)
   (if (null? l)
-      acc
-      (len-list-tail-helper (cdr l) (+ 1 acc))))
+      #f
+      (if (equal? (car l) e)
+          #t
+          (elem-list-if (cdr l) e))))
 
-(define (len-list-tail l) (len-list-tail-helper l 0))
+(elem-list-if '(1 2 3 4) 1)
+(elem-list-if '(1 2 3 4) 2)
+(elem-list-if '(1 2 3 4) 3)
+(elem-list-if '(1 2 3 4) 4)
+(elem-list-if '(1 2 3 4) 5)
+(elem-list-if '() 0)
 
-(len-list-tail '())
-(len-list-tail '(1 2 3 4 5 6))
-
-; copierea unei liste
-(define (copy-list L)
-  (if (null? L)
-      null
-      (cons (car L) (copy-list (cdr L)))))
-
-(copy-list '(1 2 3 4 5))
-
-(define (copy-list-tail-helper L acc)
-  (if (null? L)
-      acc
-      (copy-list-tail-helper (cdr L) (append acc (list (car L))))))
-
-(define (copy-list-tail L)
-  (copy-list-tail-helper L null))
-
-(copy-list-tail '(1 2 3 4 5))
-; sa fiti atent la cum se obtine rezultatul
-; posibil ca, atunci cand transformati din recursiva pe stiva
-; in recursiva pe coada, rezultatul sa fie inversat
-
-
-; functie recursiva pe coada, care nu are acumulator
-(define (is-member l e)
+(define (elem-list-cond l e)
   (cond
     ((null? l) #f)
-    ((equal? e (car l)) #t)
-    (else (is-member (cdr l) e))))
+    ((equal? (car l) e) #t)
+    (else (elem-list-cond (cdr l) e))))
 
-(is-member (list 1 2 3 4) 3)
-(is-member (list 1 2 3 4) 5)
+(elem-list-cond '(1 2 3 4) 1)
+(elem-list-cond '(1 2 3 4) 2)
+(elem-list-cond '(1 2 3 4) 3)
+(elem-list-cond '(1 2 3 4) 4)
+(elem-list-cond '(1 2 3 4) 5)
+(elem-list-cond '() 0)
 
-
-; recursivitate arborescenta - subtip al recursivitatii pe stiva
-; pentru ca se pastreaza apelurile pe stiva pentru a construi rezultatul
-; incepand cu frunzele arborelui de recurenta pana la radacina
-(define (fibo n)
-  (if (<= n 1)
-      n
-      (+ (fibo (- n 1)) (fibo (- n 2)))))
-
-(fibo 2)
-(fibo 5)
-(fibo 6)
-
-; fibo - tail recursion
-(define (fib-tail-helper n a b)
-  (if (zero? n)
-      a
-      (fib-tail-helper (sub1 n) b (+ a b))))
-
-(define (fib-tail n)
-  (fib-tail-helper n 0 1))
-
-(fib-tail 2)
-(fib-tail 5)
-(fib-tail 6)
+; adaugarea unui element la finalul listei
+(define (anti-cons l e)
+  (append l (list e)))

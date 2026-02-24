@@ -1,140 +1,124 @@
 #lang racket
 
-; curry + uncurry
+; templates
+; recursivitate pe stiva -> (operatie (car l) (func (cdr l)))
+; recursivitate pe coada -> (func-tail-helper (cdr l) (operatie acc (car l)))
 
-; uncurry - functie apelata cu toti parametrii
-(define uncurry
-  (λ (x y) (+ x y)))
+; transformare recursivitate pe stiva -> recursivitate pe coada
 
-(define (uncurry2 x y) (+ x y))
+(define (factorial n)
+  (if (= 0 n)
+      1
+      (* n (factorial (- n 1)))))
 
-(uncurry 6 9)
+(factorial 0)
+(factorial 4)
+(factorial 6)
 
-; curry - nu se pun toti parametrii
-(define curry
-  (λ (x)
-    (λ (y)
-      (+ x y))))
+(define (factorial-tail-helper n acc)
+  (if (zero? n)
+      acc
+      (factorial-tail-helper (- n 1) (* acc n))))
 
-((curry 6) 9) ; 15
-; (curry 6 9) ; eroare
-(curry 6) ; procedure
+(define (factorial-tail n) (factorial-tail-helper n 1))
 
-(define (curry->uncurry f)
-  (lambda (x y)
-    ((f x) y)))
+(factorial-tail 0)
+(factorial-tail 4)
+(factorial-tail 6)
 
-(define (uncurry->curry f)
-  (lambda (x)
-    (lambda (y)
-      (f x y))))
-
-; (map ((uncurry->curry (λ (x y) (+ 3 x y))) 5) (list 1 2 3 4 5))
-
-(((uncurry->curry uncurry) 1) 2)
-((curry->uncurry curry) 1 2)
-
-
-(define (celsius-to-kelvin-uncurry x)
-  (uncurry 273.15 x))
-(define (celsius-to-kelvin-curry x)
-  ((curry 273.15) x))
-
-(celsius-to-kelvin-uncurry 0)
-(celsius-to-kelvin-curry 0)
-
-(define (celsius-to-kelvin l)
+; suma unei liste
+(define (sum-list l)
   (if (null? l)
-      null
-      (cons (+ (car l) 273.15) (celsius-to-kelvin (cdr l)))))
+      0
+      (+ (car l) (sum-list (cdr l)))))
 
-(define (kelvin-to-celsius l)
-  (if (null? l)
-      null
-      (cons (- (car l) 273.15) (kelvin-to-celsius (cdr l)))))
+(sum-list '())
+(sum-list (list 1 2 3 4 5 6))
 
-; observam un pattern, ca putem generaliza totul printr-o functie generala / template, unde difera functia aplicata
-(define (apply-function f l)
-  (if (null? l)
-      null
-      (cons (f (car l)) (apply-function f (cdr l)))))
-
-(define (apply-function-tail-helper f l acc)
+(define (sum-list-tail-helper l acc)
   (if (null? l)
       acc
-      (apply-function-tail-helper f (cdr l) (append acc (list (f (car l)))))))
+      (sum-list-tail-helper (cdr l) (+ acc (car l)))))
 
-(define (apply-function-tail f l) (apply-function-tail-helper f l null))
+(define (sum-list-tail l) (sum-list-tail-helper l 0))
 
-(define (apply-celsius-to-kelvin l) (apply-function celsius-to-kelvin-curry l))
-(define (apply-kelvin-to-celsius l) (apply-function (λ (x) (- x 273.15)) l))
-
-(celsius-to-kelvin '(1 2 3 4 5))
-(kelvin-to-celsius '(1 2 3 4 5))
-
-(apply-celsius-to-kelvin '(1 2 3 4 5))
-(apply-kelvin-to-celsius '(1 2 3 4 5))
-
-; functionale
-(define l (list 1 2 3 4 5 6 7 8 9 10))
-
-; map
-(map (λ (x) (+ x 1)) l)
-(map add1 l)
-
-(map list l)
-(map list l l) ; '((1 1) (2 2) (3 3) (4 4) (5 5) (6 6) (7 7) (8 8) (9 9) (10 10))
-
-(map (λ (x y) (+ x y)) l l) ; '(2 4 6 8 10 12 14 16 18 20)
-(map + l l) ; '(2 4 6 8 10 12 14 16 18 20)
-(map + l l l) ; '(3 6 9 12 15 18 21 24 27 30)
-
-; filter
-(filter (λ (x) (> x 5)) l)
-(filter odd? l)
-(filter (λ (x) (not (zero? x))) l)
+(sum-list-tail '())
+(sum-list-tail (list 1 2 3 4 5 6))
 
 
-; foldl
-(foldl (λ (x acc) (+ acc x)) 0 l) 
-(foldl + 0 l)
-(foldl + 0 l l)
-(foldl (λ (x y acc) (+ acc x y)) 0 l l)
+; lungimea unei liste
+(define (len-list l)
+  (if (null? l)
+      0
+      (add1 (len-list (cdr l)))))
 
-(foldl (λ (x acc) (cons x acc)) '() l) ; reverse list
-(foldl cons '() l) ; reverse list
+(len-list '())
+(len-list '(1 2 3 4 5 6))
 
-(foldl (λ (x acc) (append acc (list x))) '() l) ; copy list
+(define (len-list-tail-helper l acc)
+  (if (null? l)
+      acc
+      (len-list-tail-helper (cdr l) (+ 1 acc))))
 
-; foldr
-(foldr (λ (x acc) (+ acc x)) 0 l)
-(foldr + 0 l)
+(define (len-list-tail l) (len-list-tail-helper l 0))
 
-(foldr (λ (x acc) (cons x acc)) '() l) ; copy list
-(foldr cons '() l) ; copy list
+(len-list-tail '())
+(len-list-tail '(1 2 3 4 5 6))
 
-(foldr (λ (x acc) (append acc (list x))) '() l) ; reverse list
+; copierea unei liste
+(define (copy-list L)
+  (if (null? L)
+      null
+      (cons (car L) (copy-list (cdr L)))))
+
+(copy-list '(1 2 3 4 5))
+
+(define (copy-list-tail-helper L acc)
+  (if (null? L)
+      acc
+      (copy-list-tail-helper (cdr L) (append acc (list (car L))))))
+
+(define (copy-list-tail L)
+  (copy-list-tail-helper L null))
+
+(copy-list-tail '(1 2 3 4 5))
+; sa fiti atent la cum se obtine rezultatul
+; posibil ca, atunci cand transformati din recursiva pe stiva
+; in recursiva pe coada, rezultatul sa fie inversat
 
 
-(define (my-filter f l)
-  (foldr (λ (x acc)
-           (if (f x)
-               (cons x acc)
-               acc)) null l))
-(my-filter odd? l)
+; functie recursiva pe coada, care nu are acumulator
+(define (is-member l e)
+  (cond
+    ((null? l) #f)
+    ((equal? e (car l)) #t)
+    (else (is-member (cdr l) e))))
 
-(define (my-map f l)
-  (foldr (λ (x acc) (cons (f x) acc)) '() l))
+(is-member (list 1 2 3 4) 3)
+(is-member (list 1 2 3 4) 5)
 
-; apply
-(define l2 (list 1 2 3 4))
 
-(apply + l2) ; (+ 1 2 3 4)
-(apply + 1 2 3 l2) ; (+ 1 2 3 1 2 3 4)
-(apply cons (list 1 2)) ; (cons 1 2)
-(apply list l2) ; (list 1 2 3 4)
-(apply list (list 5 6 7) l2) ; (list '(5 6 7) 1 2 3 4)
+; recursivitate arborescenta - subtip al recursivitatii pe stiva
+; pentru ca se pastreaza apelurile pe stiva pentru a construi rezultatul
+; incepand cu frunzele arborelui de recurenta pana la radacina
+(define (fibo n)
+  (if (<= n 1)
+      n
+      (+ (fibo (- n 1)) (fibo (- n 2)))))
 
-(define matrix (list (list 1 2 3) (list 4 5 6) (list 7 8 9))) ; '((1 2 3) (4 5 6) (7 8 9))
-(map list matrix) ; '(((1 2 3)) ((4 5 6)) ((7 8 9)))
-(apply map list matrix) ; (map list '(1 2 3) '(4 5 6) '(7 8 9))
+(fibo 2)
+(fibo 5)
+(fibo 6)
+
+; fibo - tail recursion
+(define (fib-tail-helper n a b)
+  (if (zero? n)
+      a
+      (fib-tail-helper (sub1 n) b (+ a b))))
+
+(define (fib-tail n)
+  (fib-tail-helper n 0 1))
+
+(fib-tail 2)
+(fib-tail 5)
+(fib-tail 6)

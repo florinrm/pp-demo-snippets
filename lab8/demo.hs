@@ -1,146 +1,50 @@
-import Data.Maybe
+import Data.List
 
--- type - reprezinta un alias, mai jos avem alias-uri pentru coada si pentru stiva, implementate ca liste
-type Stack a = [a]
-type Queue a = [a]
-type Point = (Int, Int)
+main_functionals = do
+    print $ [x | x <- [1..20], mod x 2 == 0]
+    print $ [(x, y) | x <- [1..20], y <- [30..40], x `mod` 3 == 0]
+    print $ take 10 [x | x <- [0, 2..], x `mod` 3 == 0]
 
-createStack :: Stack a
-createStack = []
+my_repeat :: a -> [a]
+my_repeat x = x : my_repeat x
 
-pushStack :: a -> Stack a -> Stack a
-pushStack value [] = [value]
-pushStack value l = l ++ [value]
-
-popStack :: Stack a -> Stack a
-popStack [] = []
-popStack l = init l
-
-mainStack = do
-    print $ pushStack 79 $ pushStack 69 createStack
-    print $ pushStack 10 $ pushStack 79 $ pushStack 69 createStack
-    print $ popStack $ pushStack 10 $ pushStack 79 $ pushStack 69 createStack
-
-createQueue :: Queue a
-createQueue = []
-
-pushQueue :: a -> Queue a -> Queue a
-pushQueue value [] = [value]
-pushQueue value list = list ++ [value]
-
-popQueue :: Queue a -> Queue a
-popQueue [] = []
-popQueue (x:xs) = xs
-
-mainQueue = do
-    print $ pushQueue 79 $ pushQueue 69 createQueue
-    print $ pushQueue 10 $ pushQueue 79 $ pushQueue 69 createQueue
-    print $ popQueue $ pushQueue 10 $ pushQueue 79 $ pushQueue 69 createQueue
+naturals1 = [0..]
+naturals2 = iter 0
+    where iter x = x : iter (x + 1)
+naturals3 = iterate (\x -> x + 1) 0  -- SAU
+naturals4 = iterate (+ 1) 0
 
 
--- data - aici putem avea cel putin un constructor pentru tipul de date (constructorul este similar ca concept cu constructorul de clase din Java)
-data Square = CreateSquare Double deriving Show -- aici avem un singur membru (anonim)
-data Triangle = CreateRegularTriangle Integer Integer Integer | CreateEquilateralTriangle Integer deriving Show -- mai multi constructori
--- perimetrul unui patrat
-perimeterSquare :: Square -> Double
-perimeterSquare (CreateSquare side) = 4 * side
--- pentru ca SquareDouble are un membru anonim, folosind pattern matching ca sa il putem accesa, ca sa putem calcula perimetrul unui patrat
+main_infinite_lists = do
+    print $ take 10 [1..]
+    print $ take 10 [2, 4..]
+    print $ take 10 $ repeat 1
+    print $ take 10 $ my_repeat 1
+    print $ take 10 $ intersperse 2 (repeat 1)
+    print $ dropWhile even [2,4,6,7,9,11,12,13,14]
+    print $ take 10 $ iterate (+ 1) 1
 
-perimeterTriangle :: Triangle -> Integer
-perimeterTriangle (CreateTriangle a b c) = a + b + c
-perimeterTriangle (CreateEquilateralTriangle a) = 3 * a
+length $ 3 : [1, 2] -- length (3 : [1, 2])
 
-mainSquare = do
-    print $ perimeterSquare $ CreateSquare 10
+sum1 xs = foldl (+) 0 xs
+sum2 = foldl (+) 0
 
--- tipuri enumerate - functioneaza ca enum din C / Java
-data Color = Red | Black | Green | Blue | White deriving Show
-isNonColor :: Color -> Bool
-isNonColor Black = True
-isNonColor White = True
-isNonColor _ = False -- restul de culor
+-- point wise vs point free
+square x = x * x
+inc x = x + 1
 
-mainColor = do
-    print $ isNonColor Blue
-    print $ isNonColor Black
+-- point-wise
+some_func x = inc (square (x + 2))
 
--- tipuri parametrizate / generice - similar cu clasele generice din Java
-data Circle a = CreateCircle a -- a reprezinta tipul membrului din Circle
-{-
-    analogie cu Java
-    class Circle<T> {
-        T radius;
-        Circle (T radius) {
-            this.radius = radius;
-        }
-    }
--}
-data MyPair a b = CreatePair a b | CreateMono a
-
--- recorded data (tipuri inregistrate) - aici, avem membrii cu nume, in mod explicit
-data Rectagle = CreateRectangle {
-    lengthRectangle :: Double,
-    widthRectangle :: Double    
-} deriving Show
-perimeterRectangle :: Rectagle -> Double
-perimeterRectangle rectangle = ((widthRectangle rectangle) + (lengthRectangle rectangle)) * 2
--- putem sa facem si ca mai sus, cand aveam membrii anonimi
--- perimeterRectangle (CreateRectangle lengthRec widthRec) = (widthRec + lengthRec) * 2
-
-mainRectangle = do
-    print $ perimeterRectangle $ CreateRectangle 6 9
-    print $ widthRectangle $ CreateRectangle 6 9
+-- point-free
+some_func_point_free = inc . square . (+ 2)
+some_func_point_free2 = inc . square . (2 +)
 
 
--- tipuri recursive (pot fi si ele generice)
-data BST a = Nil | CreateNode a (BST a) (BST a) -- arbore binar de cautare
-{-
-    analogie cu C (struct) - arbore binar de cautare (exemplul de mai sus)
-    struct node { 
-        int key; 
-        struct node *left, *right; 
-    }; 
--}
+(length . tail . zip [1,2,3,4]) ("abc" ++ "d")
+length . tail . zip [1,2,3,4] $ "abc" ++ "d"
 
-data List a = EmptyList | Cons a (List a) deriving Show
--- EmptyList - constructorul pentru lista goala
--- Cons - constructor pentru o lista cu cel putin un element
--- Cons are 2 membrii: head-ul listei si restul listei
-insertList :: a -> List a -> List a
-insertList value EmptyList = Cons value EmptyList
-insertList value (Cons val list) = Cons value (Cons val list)
+concatMap (\x -> [(x,x+2,x/2)]) [1,3,5]
 
--- newtype - spre deosebire, are un singur constructor si un singur membru
-newtype Celsius = MakeCelsius Float deriving Show
-newtype Pair a b = Pair { getPair :: (a, b) } deriving Show
-
--- Maybe
-primeHelper :: Integer -> Integer -> Bool
-primeHelper n div 
-    | n < 2 = False
-    | div == n = True
-    | n `mod` div == 0 = False
-    | otherwise = primeHelper n (div + 1)
-
-prime :: Integer -> Bool
-prime n = primeHelper n 2
-
-primesDecomposition :: Integer -> Maybe (Integer, Integer)
-primesDecomposition n = let
-    pairs = [(x, n - x) | x <- [2..n], prime x, prime (n - x), x <= n - x]
-    in if null pairs 
-        then Nothing 
-        else Just $ head pairs
-
-data Vector = V
-  { vx :: Double
-  , vy :: Double
-  , vz :: Double
-  } deriving (Show, Eq)
-
-lengthV :: Vector -> Double
-lengthV (V vx vy vz) = sqrt $ vx * vx + vy * vy + vz * vz
-
-normalizeV :: Vector -> Vector
-normalizeV v@(V vx vy vz) = V (vx * invLen) (vy * invLen) (vz * invLen)
-  where invLen = 1 / (lengthV v) 
+myIntersperse :: a -> [a] -> [a]
+myIntersperse y = foldr (++) [] . map (: [y])
