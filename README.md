@@ -19,4 +19,4 @@
 - [Laboratorul 11 - legare și execuție](lab11/demo.pl)
 - [Laboratorul 13 - probleme](lab13/demo.pl)
 ### Slides laborator
-- [link](https://drive.google.com/drive/folders/1KTxlpGLy38cCCp0McomA90WpZqVuZDIm?usp=sharing)
+- [link](https://drive.google.com/drive/folders/1WQjrp1w7wn4gcG_OWa3qfJSn3L0Pidjj?usp=sharing)
